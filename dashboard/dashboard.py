@@ -12,7 +12,7 @@ import os.path as op
 
 script_path = op.dirname(op.realpath(__file__))
 
-ctrl_srv = 'cxout:0'
+ctrl_srv = '192.168.152.2:0'
 
 class InjExtCtl(BaseGridW):
     def __init__(self, parent=None):
@@ -152,7 +152,6 @@ class PUSwitch(BaseGridW):
         self.grid.addWidget(self.auto_v4_ctl, 7, 1)
 
 
-
 class DDMWidget(BaseGridW):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -177,10 +176,9 @@ class DDMWidget(BaseGridW):
         self.pu_sw = PUSwitch()
         self.grid.addWidget(self.pu_sw, 8, 0)
 
-        #self.grid.addWidget(QLabel("Automatic Injection/extraction control"), 2, 0, 1, 4, Qt.AlignHCenter)
 
 
-app = QApplication(['Doom\'s day machine'])
+app = QApplication(['Defense board'])
 
 w = DDMWidget()
 w.show()
