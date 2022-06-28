@@ -12,7 +12,7 @@ import os.path as op
 
 script_path = op.dirname(op.realpath(__file__))
 
-ctrl_srv = '192.168.152.2:0'
+ctrl_srv = 'cxout:0'
 
 class InjExtCtl(BaseGridW):
     def __init__(self, parent=None):
