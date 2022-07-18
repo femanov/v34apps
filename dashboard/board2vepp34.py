@@ -5,7 +5,7 @@ from cxwidgets.aQt.QtCore import Qt
 from cxwidgets.aQt import QtGui
 
 from cxwidgets import CXSwitch, CXSpinBox, CXPushButton, CXEventLed, CXTextComboBox, CXLineEdit, CXProgressBar,\
-    HLine, BaseGridW, CXIntComboBox, CXIntLabel
+    HLine, BaseGridW, CXIntComboBox, CXIntLabel, CXStateLed
 
 from acc_ctl.mode_defs import mode_colors
 import os.path as op
@@ -14,12 +14,13 @@ script_path = op.dirname(op.realpath(__file__))
 
 ctrl_srv = 'cxout:0'
 
+
 class InjExtCtl(BaseGridW):
     def __init__(self, parent=None):
         super().__init__(parent)
 
         grid = self.grid
-        grid.addWidget(QLabel("injection/extraction control"), 0, 0, 1, 4, Qt.AlignHCenter)
+        grid.addWidget(QLabel("Injection complex info"), 0, 0, 1, 4, Qt.AlignHCenter)
 
         grid.addWidget(QLabel("linac run-mode"), 1, 0, 1, 1, Qt.AlignRight)
         self.linac_mode_cb = CXIntComboBox(cname='canhw:19.syn_ie4.mode', values={0: 'continuous', 1: 'counter'})
@@ -28,16 +29,11 @@ class InjExtCtl(BaseGridW):
         grid.addWidget(QLabel("beam switch"), 2, 0, 1, 1, Qt.AlignRight)
 
         # turning magnet control
-        grid.addWidget(QLabel("beam dump"), 3, 0, 1, 1, Qt.AlignRight)
-        self.linac_dump_state = CXIntLabel(cname='canhw:21.turnmag.cur_direction',
+        grid.addWidget(QLabel("beam dump state"), 3, 0, 1, 1, Qt.AlignRight)
+        self.linac_dump_state = CXIntLabel(cname=f'{ctrl_srv}.rotmag.cur_direction',
                                            values={2: '->Dump', 1: '->Ring', 3: 'between'},
                                            colors={2: '#FF0000', 1: '#00FF00', 3: '#FFFF00'})
         grid.addWidget(self.linac_dump_state, 3, 1)
-
-        self.dump_close_btn = CXPushButton('toDump', cname='canhw:21.turnmag.go_bury_max')
-        grid.addWidget(self.dump_close_btn, 3, 2)
-        self.dump_open_btn = CXPushButton('toRing', cname='canhw:21.turnmag.go_ring_max')
-        grid.addWidget(self.dump_open_btn, 3, 3)
 
         grid.addWidget(QLabel("e-shots"), 4, 0, 1, 1, Qt.AlignRight)
         self.sb_eshots = CXSpinBox(cname=f'{ctrl_srv}.ddm.eshots')
@@ -47,32 +43,15 @@ class InjExtCtl(BaseGridW):
         self.sb_eshots = CXSpinBox(cname=f'{ctrl_srv}.ddm.pshots')
         grid.addWidget(self.sb_eshots, 4, 3)
 
-        grid.addWidget(QLabel("particles"), 5, 0, 1, 1, Qt.AlignRight)
+        grid.addWidget(QLabel("weapon"), 5, 0, 1, 1, Qt.AlignRight)
         self.cb_particles = CXTextComboBox(cname=f'{ctrl_srv}.ddm.particles', values=['e', 'p'],
                                            icons=[script_path + '/img/electron.png', script_path + '/img/positron.png'])
         grid.addWidget(self.cb_particles, 5, 1)
-
-        self.b_inject = CXPushButton('Inject', cname=f'{ctrl_srv}.ddm.inject')
-        grid.addWidget(self.b_inject, 5, 2)
-
-        self.b_extract = CXPushButton('Extract', cname=f'{ctrl_srv}.ddm.extract')
-        grid.addWidget(self.b_extract, 5, 3)
-
-        self.b_round = CXPushButton('Round', cname=f'{ctrl_srv}.ddm.nround')
-        grid.addWidget(self.b_round, 6, 0)
-
-        self.b_auto = CXPushButton('Auto', cname=f'{ctrl_srv}.ddm.autorun')
-        grid.addWidget(self.b_auto, 6, 1)
-
-        self.b_stop = CXPushButton('Stop', cname=f'{ctrl_srv}.ddm.stop')
-        grid.addWidget(self.b_stop, 6, 2)
 
 
 class InjExtState(BaseGridW):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self.grid.addWidget(QLabel("Machne state"), 0, 0, 1, 4, Qt.AlignHCenter)
 
         self.grid.addWidget(QLabel("shots left"), 1, 0)
         self.sb_nshots = CXSpinBox(cname=f'{ctrl_srv}.ddm.shots_left')
@@ -107,60 +86,42 @@ class K500State(BaseGridW):
                                            colors=[mode_colors[x] for x in vals])
         self.grid.addWidget(self.cb_particles, 1, 1)
 
+
 class PUSwitch(BaseGridW):
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.grid.addWidget(QLabel("Particles&users switching"), 0, 0, 1, 2, Qt.AlignHCenter)
 
-        self.l_v34 = QLabel()
-        self.l_v34.setPixmap(QtGui.QPixmap(f"{script_path}/img/VEPP4logo_small.gif"))
-        self.grid.addWidget(self.l_v34, 1, 0, 1, 1, Qt.AlignHCenter)
-
-        self.l_v2k = QLabel()
-        self.l_v2k.setPixmap(QtGui.QPixmap(f"{script_path}/img/v2k_logo_blue.png"))
-        self.grid.addWidget(self.l_v2k, 1, 1, 1, 1, Qt.AlignHCenter)
-
-        self.b_e2v4 = CXPushButton('-->e2v4', cname=f'{ctrl_srv}.ddm.e2v4')
-        self.grid.addWidget(self.b_e2v4, 2, 0)
-        self.b_e2v4.setStyleSheet(f"background-color: {mode_colors['e2v4']};")
-
-        self.b_p2v4 = CXPushButton('-->p2v4', cname=f'{ctrl_srv}.ddm.p2v4')
-        self.grid.addWidget(self.b_p2v4, 3, 0)
-        self.b_p2v4.setStyleSheet(f"background-color: {mode_colors['p2v4']};")
-
-        self.b_e2v2 = CXPushButton('-->e2v2', cname=f'{ctrl_srv}.ddm.e2v2')
-        self.grid.addWidget(self.b_e2v2, 2, 1)
-        self.b_e2v2.setStyleSheet(f"background-color: {mode_colors['e2v2']};")
-
-        self.b_p2v2 = CXPushButton('-->p2v2', cname=f'{ctrl_srv}.ddm.p2v2')
-        self.grid.addWidget(self.b_p2v2, 3, 1)
-        self.b_p2v2.setStyleSheet(f"background-color: {mode_colors['p2v2']};")
-
-        self.grid.addWidget(QLabel("current state"), 4, 0, 1, 2, Qt.AlignHCenter)
-
-        #self.grid.addWidget(QLabel("switching"), 5, 0, 1, 2, Qt.AlignHCenter)
         self.sw_progress = CXProgressBar(cname=f'{ctrl_srv}.k500.mode_progress')
-        self.grid.addWidget(self.sw_progress, 5, 0, 1, 2)
+        self.grid.addWidget(self.sw_progress, 1, 0, 1, 2)
 
-        self.grid.addWidget(QLabel("allow vepp2k automatics"), 6, 0)
-        self.auto_v2k_ctl = CXSwitch(cname=f'{ctrl_srv}.ddm.v2k_auto')
-        self.grid.addWidget(self.auto_v2k_ctl, 6, 1)
+        self.grid.addWidget(QLabel("allow vepp2k automatics"), 2, 0)
+        self.auto_v2k_led = CXStateLed(cname=f'{ctrl_srv}.ddm.v2k_auto')
+        self.auto_v2k_led.setDiameter(50)
+        self.grid.addWidget(self.auto_v2k_led, 2, 1)
 
-        self.grid.addWidget(QLabel("allow vepp3/4 automatics"), 7, 0)
-        self.auto_v4_ctl = CXSwitch(cname=f'{ctrl_srv}.ddm.vepp4_auto')
-        self.grid.addWidget(self.auto_v4_ctl, 7, 1)
+        self.grid.addWidget(QLabel("allow vepp3/4 automatics"), 3, 0)
+        self.auto_v4_led = CXStateLed(cname=f'{ctrl_srv}.ddm.vepp4_auto')
+        self.auto_v4_led.setDiameter(50)
+        self.grid.addWidget(self.auto_v4_led, 3, 1)
+
+
+class BeamUserRequest(BaseGridW):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.grid.addWidget(QLabel("Beg for mercy\n(no beam)"), 0, 0)
+        self.grid.addWidget(CXSwitch(cname=f'{ctrl_srv}.vepp4_bu.ask_no_beam'), 0, 1)
 
 
 class DDMWidget(BaseGridW):
     def __init__(self, parent=None):
         super().__init__(parent)
-        # self.extr_trainer = TrainingCtlW()
-        # self.grid.addWidget(self.extr_trainer, 0, 0)
 
-        # self.grid.addWidget(HLine(), 1, 0)
-        # self.inj_ext = InjExtCtl()
-        # self.grid.addWidget(self.inj_ext, 2, 0)
+        self.grid.addWidget(HLine(), 1, 0)
+        self.inj_ext = InjExtCtl()
+        self.grid.addWidget(self.inj_ext, 2, 0)
 
         self.grid.addWidget(HLine(), 3, 0)
         self.inj_ext_st = InjExtState()
@@ -176,9 +137,12 @@ class DDMWidget(BaseGridW):
         self.pu_sw = PUSwitch()
         self.grid.addWidget(self.pu_sw, 8, 0)
 
+        self.grid.addWidget(HLine(), 9, 0)
+
+        self.grid.addWidget(BeamUserRequest(), 10, 0)
 
 
-app = QApplication(['Defense board'])
+app = QApplication(['Particle beam attack warning'])
 
 w = DDMWidget()
 w.show()
