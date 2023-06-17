@@ -27,7 +27,7 @@ class InjExtCtl(BaseGridW):
         # grid.addWidget(self.linac_mode_cb, 1, 1)
 
         grid.addWidget(QLabel("beam switch"), 2, 0, 1, 1, Qt.AlignRight)
-        self.beam_swc_state = CXIntLabel(cname='beamswitch.state',
+        self.beam_swc_state = CXIntLabel(cname=f'{ctrl_srv}.beamswitch.state',
                                         values={
                                             -2: 'failed',
                                             -1: 'unknown',
@@ -112,17 +112,17 @@ class PUSwitch(BaseGridW):
 
         self.grid.addWidget(QLabel("Particles&users switching"), 0, 0, 1, 2, Qt.AlignHCenter)
 
-        self.sw_progress = CXProgressBar(cname='k500.mode_progress')
+        self.sw_progress = CXProgressBar(cname=f'{ctrl_srv}.k500.mode_progress')
         self.grid.addWidget(self.sw_progress, 1, 0, 1, 2)
 
         self.grid.addWidget(QLabel("allow vepp2k automatics"), 2, 0)
-        self.auto_v2k_led = CXStateLed(cname='ddm.v2k_auto', )
+        self.auto_v2k_led = CXStateLed(cname=f'{ctrl_srv}.ddm.v2k_auto', )
         self.auto_v2k_led.setOnColor(QtGui.QColor("#00FF00"))
         self.auto_v2k_led.setDiameter(50)
         self.grid.addWidget(self.auto_v2k_led, 2, 1)
 
         self.grid.addWidget(QLabel("allow vepp3/4 automatics"), 3, 0)
-        self.auto_v4_led = CXStateLed(cname='ddm.vepp4_auto')
+        self.auto_v4_led = CXStateLed(cname=f'{ctrl_srv}.ddm.vepp4_auto')
         self.auto_v4_led.setOnColor(QtGui.QColor("#00FF00"))
         self.auto_v4_led.setDiameter(50)
         self.grid.addWidget(self.auto_v4_led, 3, 1)
