@@ -22,11 +22,30 @@ class InjExtCtl(BaseGridW):
         grid = self.grid
         grid.addWidget(QLabel("Injection complex info"), 0, 0, 1, 4, Qt.AlignHCenter)
 
-        grid.addWidget(QLabel("linac run-mode"), 1, 0, 1, 1, Qt.AlignRight)
-        self.linac_mode_cb = CXIntComboBox(cname='canhw:19.syn_ie4.mode', values={0: 'continuous', 1: 'counter'})
-        grid.addWidget(self.linac_mode_cb, 1, 1)
+        # grid.addWidget(QLabel("linac run-mode"), 1, 0, 1, 1, Qt.AlignRight)
+        # self.linac_mode_cb = CXIntComboBox(cname='canhw:19.syn_ie4.mode', values={0: 'continuous', 1: 'counter'})
+        # grid.addWidget(self.linac_mode_cb, 1, 1)
 
         grid.addWidget(QLabel("beam switch"), 2, 0, 1, 1, Qt.AlignRight)
+        self.beam_swc_state = CXIntLabel(cname='beamswitch.state',
+                                        values={
+                                            -2: 'failed',
+                                            -1: 'unknown',
+                                            0:  'off',
+                                            1:  'on',
+                                            2: 'turning_off',
+                                            3: 'turning_on',
+                                           },
+                                        colors={
+                                            -2: '#000099',
+                                            -1: '#FFFFFF',
+                                            0: '#FF0000',
+                                            1: '#00FF00',
+                                            2: '#FFFF00',
+                                            3: '#FFFF00',
+                                                })
+        self.beam_swc_state.setMinimumWidth(80)
+        grid.addWidget(self.beam_swc_state, 2, 1)
 
         # turning magnet control
         grid.addWidget(QLabel("beam dump state"), 3, 0, 1, 1, Qt.AlignRight)
@@ -93,16 +112,18 @@ class PUSwitch(BaseGridW):
 
         self.grid.addWidget(QLabel("Particles&users switching"), 0, 0, 1, 2, Qt.AlignHCenter)
 
-        self.sw_progress = CXProgressBar(cname=f'{ctrl_srv}.k500.mode_progress')
+        self.sw_progress = CXProgressBar(cname='k500.mode_progress')
         self.grid.addWidget(self.sw_progress, 1, 0, 1, 2)
 
         self.grid.addWidget(QLabel("allow vepp2k automatics"), 2, 0)
-        self.auto_v2k_led = CXStateLed(cname=f'{ctrl_srv}.ddm.v2k_auto')
+        self.auto_v2k_led = CXStateLed(cname='ddm.v2k_auto', )
+        self.auto_v2k_led.setOnColor(QtGui.QColor("#00FF00"))
         self.auto_v2k_led.setDiameter(50)
         self.grid.addWidget(self.auto_v2k_led, 2, 1)
 
         self.grid.addWidget(QLabel("allow vepp3/4 automatics"), 3, 0)
-        self.auto_v4_led = CXStateLed(cname=f'{ctrl_srv}.ddm.vepp4_auto')
+        self.auto_v4_led = CXStateLed(cname='ddm.vepp4_auto')
+        self.auto_v4_led.setOnColor(QtGui.QColor("#00FF00"))
         self.auto_v4_led.setDiameter(50)
         self.grid.addWidget(self.auto_v4_led, 3, 1)
 
